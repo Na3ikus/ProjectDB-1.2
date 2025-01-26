@@ -1,5 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Text;
 using MySql.Data.MySqlClient;
 
 namespace SchoolManagementSystem
@@ -8,15 +10,19 @@ namespace SchoolManagementSystem
     {
         static void Main(string[] args)
         {
+            Console.OutputEncoding = Encoding.UTF8;
+            Console.InputEncoding = Encoding.UTF8;
+
             while (true)
             {
-                Console.Clear();
-                Console.WriteLine("=== School Management System ===");
-                Console.WriteLine("1. Manage Students");
-                Console.WriteLine("2. Manage Teachers");
-                Console.WriteLine("3. Manage Administration");
-                Console.WriteLine("4. Exit");
-                Console.Write("Choose an option: ");
+                Console.WriteLine("=== Система управління школою ===");
+                Console.WriteLine("1. Управління учнями");
+                Console.WriteLine("2. Управління вчителями");
+                Console.WriteLine("3. Управління адміністрацією");
+                Console.WriteLine("4. Управління розкладом");
+                Console.WriteLine("5. Управління оцінками");
+                Console.WriteLine("6. Вихід");
+                Console.Write("Виберіть опцію: ");
 
                 switch (Console.ReadLine())
                 {
@@ -30,10 +36,16 @@ namespace SchoolManagementSystem
                         AdminManager.Menu();
                         break;
                     case "4":
-                        Console.WriteLine("Goodbye!");
+                        ScheduleManager.Menu();
+                        break;
+                    case "5":
+                        GradeManager.Menu();
+                        break;
+                    case "6":
+                        Console.WriteLine("До побачення!");
                         return;
                     default:
-                        Console.WriteLine("Invalid option. Press any key to try again...");
+                        Console.WriteLine("Невірна опція. Натисніть будь-яку клавішу, щоб спробувати ще раз...");
                         Console.ReadKey();
                         break;
                 }
@@ -88,8 +100,8 @@ namespace SchoolManagementSystem
                     Console.WriteLine($"{i}. {option.Key}");
                     i++;
                 }
-                Console.WriteLine("0. Back");
-                Console.Write("Choose an option: ");
+                Console.WriteLine("0. Назад");
+                Console.Write("Виберіть опцію: ");
 
                 if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 0 && choice <= options.Count)
                 {
@@ -98,7 +110,7 @@ namespace SchoolManagementSystem
                 }
                 else
                 {
-                    Console.WriteLine("Invalid choice. Press any key to try again...");
+                    Console.WriteLine("Невірний вибір. Натисніть будь-яку клавішу, щоб спробувати ще раз...");
                     Console.ReadKey();
                 }
             }
@@ -109,13 +121,13 @@ namespace SchoolManagementSystem
     {
         public static void Menu()
         {
-            MenuHelper.ShowMenu("Manage Students", new Dictionary<string, Action>
-        {
-            { "List All Students", ListStudents },
-            { "Add New Student", AddStudent },
-            { "Edit Student", EditStudent },
-            { "Delete Student", DeleteStudent }
-        });
+            MenuHelper.ShowMenu("Управління учнями", new Dictionary<string, Action>
+            {
+                { "Список усіх учнів", ListStudents },
+                { "Додати нового учня", AddStudent },
+                { "Редагувати учня", EditStudent },
+                { "Видалити учня", DeleteStudent }
+            });
         }
 
         private static void ListStudents()
@@ -129,27 +141,27 @@ namespace SchoolManagementSystem
                     while (reader.Read())
                     {
                         Console.WriteLine($"ID: {reader["student_id"]}, " +
-                            $"Name: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
-                            $"Class ID: {reader["class_id"]}");
+                            $"Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"ID класу: {reader["class_id"]}");
                     }
                 });
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void AddStudent()
         {
-            Console.Write("Enter First Name: ");
+            Console.Write("Введіть ім'я: ");
             string fname = Console.ReadLine();
-            Console.Write("Enter Name: ");
+            Console.Write("Введіть прізвище: ");
             string name = Console.ReadLine();
-            Console.Write("Enter Last Name: ");
+            Console.Write("Введіть по батькові: ");
             string sname = Console.ReadLine();
-            Console.Write("Enter Birth Date (YYYY-MM-DD): ");
+            Console.Write("Введіть дату народження (РРРР-ММ-ДД): ");
             string birthDate = Console.ReadLine();
-            Console.Write("Enter Sex (0/1): ");
+            Console.Write("Введіть стать (0/1): ");
             string sex = Console.ReadLine();
-            Console.Write("Enter Class ID: ");
+            Console.Write("Введіть ID класу: ");
             string classId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -167,23 +179,23 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@classId", classId);
                 });
 
-            Console.WriteLine("Student added successfully! Press any key to continue...");
+            Console.WriteLine("Учень успішно доданий! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void EditStudent()
         {
-            Console.Write("Enter Student ID to edit: ");
+            Console.Write("Введіть ID учня для редагування: ");
             string studentId = Console.ReadLine();
 
-            Console.WriteLine("Leave fields blank to skip updating");
-            Console.Write("New First Name: ");
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Нове ім'я: ");
             string fname = Console.ReadLine();
-            Console.Write("New Name: ");
+            Console.Write("Нове прізвище: ");
             string name = Console.ReadLine();
-            Console.Write("New Last Name: ");
+            Console.Write("Нове по батькові: ");
             string sname = Console.ReadLine();
-            Console.Write("New Class ID: ");
+            Console.Write("Новий ID класу: ");
             string classId = Console.ReadLine();
 
             var personUpdates = new List<string>();
@@ -210,11 +222,11 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@studentId", studentId);
                     });
 
-                Console.WriteLine("Student updated successfully! Press any key to continue...");
+                Console.WriteLine("Учень успішно оновлений! Натисніть будь-яку клавішу, щоб продовжити...");
             }
             else
             {
-                Console.WriteLine("No updates made. Press any key to continue...");
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
             }
 
             Console.ReadKey();
@@ -222,7 +234,7 @@ namespace SchoolManagementSystem
 
         private static void DeleteStudent()
         {
-            Console.Write("Enter Student ID to delete: ");
+            Console.Write("Введіть ID учня для видалення: ");
             string studentId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -234,7 +246,7 @@ namespace SchoolManagementSystem
           )",
                 cmd => cmd.Parameters.AddWithValue("@studentId", studentId));
 
-            Console.WriteLine("Student and related records deleted successfully! Press any key to continue...");
+            Console.WriteLine("Учень та пов'язані записи успішно видалені! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
     }
@@ -243,13 +255,13 @@ namespace SchoolManagementSystem
     {
         public static void Menu()
         {
-            MenuHelper.ShowMenu("Manage Teachers", new Dictionary<string, Action>
+            MenuHelper.ShowMenu("Управління вчителями", new Dictionary<string, Action>
             {
-                { "List All Teachers", ListTeachers },
-                { "Add New Teacher", AddTeacher },
-                { "Edit Teacher", EditTeacher },
-                { "Delete Teacher", DeleteTeacher },
-                { "Assign Subject", AssignSubject }
+                { "Список усіх вчителів", ListTeachers },
+                { "Додати нового вчителя", AddTeacher },
+                { "Редагувати вчителя", EditTeacher },
+                { "Видалити вчителя", DeleteTeacher },
+                { "Призначити предмет", AssignSubject }
             });
         }
 
@@ -265,32 +277,32 @@ namespace SchoolManagementSystem
                     while (reader.Read())
                     {
                         Console.WriteLine($"ID: {reader["teacher_id"]}, " +
-                            $"Name: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
-                            $"Department: {reader["department"]}, " +
-                            $"Position: {reader["position"]}");
+                            $"Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"Відділ: {reader["department"]}, " +
+                            $"Посада: {reader["position"]}");
                     }
                 });
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void AddTeacher()
         {
-            Console.Write("Enter First Name: ");
+            Console.Write("Введіть ім'я: ");
             string fname = Console.ReadLine();
-            Console.Write("Enter Name: ");
+            Console.Write("Введіть прізвище: ");
             string name = Console.ReadLine();
-            Console.Write("Enter Last Name: ");
+            Console.Write("Введіть по батькові: ");
             string sname = Console.ReadLine();
-            Console.Write("Enter Birth Date (YYYY-MM-DD): ");
+            Console.Write("Введіть дату народження (РРРР-ММ-ДД): ");
             string birthDate = Console.ReadLine();
-            Console.Write("Enter Sex (0/1): ");
+            Console.Write("Введіть стать (0/1): ");
             string sex = Console.ReadLine();
-            Console.Write("Enter Department ID: ");
+            Console.Write("Введіть ID відділу: ");
             string departmentId = Console.ReadLine();
-            Console.Write("Enter Position: ");
+            Console.Write("Введіть посаду: ");
             string position = Console.ReadLine();
-            Console.Write("Enter Hire Date (YYYY-MM-DD): ");
+            Console.Write("Введіть дату прийому на роботу (РРРР-ММ-ДД): ");
             string hireDate = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -310,19 +322,19 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@position", position);
                 });
 
-            Console.WriteLine("Teacher added successfully! Press any key to continue...");
+            Console.WriteLine("Вчитель успішно доданий! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void EditTeacher()
         {
-            Console.Write("Enter Teacher ID to edit: ");
+            Console.Write("Введіть ID вчителя для редагування: ");
             string teacherId = Console.ReadLine();
 
-            Console.WriteLine("Leave fields blank to skip updating");
-            Console.Write("New Department ID: ");
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Новий ID відділу: ");
             string departmentId = Console.ReadLine();
-            Console.Write("New Position: ");
+            Console.Write("Нова посада: ");
             string position = Console.ReadLine();
 
             var updates = new List<string>();
@@ -342,11 +354,11 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@teacherId", teacherId);
                     });
 
-                Console.WriteLine("Teacher updated successfully! Press any key to continue...");
+                Console.WriteLine("Вчитель успішно оновлений! Натисніть будь-яку клавішу, щоб продовжити...");
             }
             else
             {
-                Console.WriteLine("No updates made. Press any key to continue...");
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
             }
 
             Console.ReadKey();
@@ -354,7 +366,7 @@ namespace SchoolManagementSystem
 
         private static void DeleteTeacher()
         {
-            Console.Write("Enter Teacher ID to delete: ");
+            Console.Write("Введіть ID вчителя для видалення: ");
             string teacherId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -364,15 +376,15 @@ namespace SchoolManagementSystem
                   )",
                 cmd => cmd.Parameters.AddWithValue("@teacherId", teacherId));
 
-            Console.WriteLine("Teacher deleted successfully! Press any key to continue...");
+            Console.WriteLine("Вчитель успішно видалений! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void AssignSubject()
         {
-            Console.Write("Enter Teacher ID: ");
+            Console.Write("Введіть ID вчителя: ");
             string teacherId = Console.ReadLine();
-            Console.Write("Enter Subject ID: ");
+            Console.Write("Введіть ID предмета: ");
             string subjectId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -383,7 +395,284 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@subjectId", subjectId);
                 });
 
-            Console.WriteLine("Subject assigned successfully! Press any key to continue...");
+            Console.WriteLine("Предмет успішно призначено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+    }
+
+    static class ScheduleManager
+    {
+        public static void Menu()
+        {
+            MenuHelper.ShowMenu("Управління розкладом", new Dictionary<string, Action>
+            {
+                { "Список розкладів учнів", ListStudentSchedules },
+                { "Список розкладів вчителів", ListTeacherSchedules },
+                { "Додати розклад для учня", AddStudentSchedule },
+                { "Додати розклад для вчителя", AddTeacherSchedule },
+                { "Видалити розклад учня", DeleteStudentSchedule },
+                { "Видалити розклад вчителя", DeleteTeacherSchedule }
+            });
+        }
+
+        private static void ListStudentSchedules()
+        {
+            DatabaseHelper.ExecuteQuery(@"
+                SELECT s.schedule_id, c.number AS class_number, 
+                       sub.name AS subject_name, 
+                       s.day_of_week, s.start_time, s.end_time
+                FROM Schedules s
+                JOIN Classes c ON s.class_id = c.class_id
+                JOIN Subjects sub ON s.subject_id = sub.subject_id",
+                process: reader =>
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID розкладу: {reader["schedule_id"]}, " +
+                            $"Клас: {reader["class_number"]}, " +
+                            $"Предмет: {reader["subject_name"]}, " +
+                            $"День: {reader["day_of_week"]}, " +
+                            $"Час: {reader["start_time"]} - {reader["end_time"]}");
+                    }
+                });
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void ListTeacherSchedules()
+        {
+            DatabaseHelper.ExecuteQuery(@"
+                SELECT st.schedule_id, p.fname, p.name, p.sname, 
+                       sub.name AS subject_name, 
+                       st.day_of_week, st.start_time, st.end_time, st.room
+                FROM Schedules_Teachers st
+                JOIN Teachers t ON st.teacher_id = t.teacher_id
+                JOIN Person p ON t.person_id = p.person_id
+                JOIN Subjects sub ON st.subject_id = sub.subject_id",
+                process: reader =>
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID розкладу: {reader["schedule_id"]}, " +
+                            $"Вчитель: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"Предмет: {reader["subject_name"]}, " +
+                            $"День: {reader["day_of_week"]}, " +
+                            $"Час: {reader["start_time"]} - {reader["end_time"]}, " +
+                            $"Аудиторія: {reader["room"]}");
+                    }
+                });
+            Console.WriteLine("\nНатисніть будь-яку клавішу,");
+            Console.ReadKey();
+        }
+
+        private static void AddStudentSchedule()
+        {
+            Console.Write("Введіть ID класу: ");
+            string classId = Console.ReadLine();
+            Console.Write("Введіть ID предмета: ");
+            string subjectId = Console.ReadLine();
+            Console.Write("Введіть день тижня: ");
+            string dayOfWeek = Console.ReadLine();
+            Console.Write("Введіть час початку (ГГ:ХХ): ");
+            string startTime = Console.ReadLine();
+            Console.Write("Введіть час закінчення (ГГ:ХХ): ");
+            string endTime = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "INSERT INTO Schedules (class_id, subject_id, day_of_week, start_time, end_time) " +
+                "VALUES (@classId, @subjectId, @dayOfWeek, @startTime, @endTime)",
+                cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@classId", classId);
+                    cmd.Parameters.AddWithValue("@subjectId", subjectId);
+                    cmd.Parameters.AddWithValue("@dayOfWeek", dayOfWeek);
+                    cmd.Parameters.AddWithValue("@startTime", startTime);
+                    cmd.Parameters.AddWithValue("@endTime", endTime);
+                });
+
+            Console.WriteLine("Розклад для учня успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void AddTeacherSchedule()
+        {
+            Console.Write("Введіть ID вчителя: ");
+            string teacherId = Console.ReadLine();
+            Console.Write("Введіть ID предмета: ");
+            string subjectId = Console.ReadLine();
+            Console.Write("Введіть день тижня (1-7): ");
+            string dayOfWeek = Console.ReadLine();
+            Console.Write("Введіть час початку (ГГ:ХХ): ");
+            string startTime = Console.ReadLine();
+            Console.Write("Введіть час закінчення (ГГ:ХХ): ");
+            string endTime = Console.ReadLine();
+            Console.Write("Введіть аудиторію: ");
+            string room = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "INSERT INTO Schedules_Teachers (teacher_id, subject_id, day_of_week, start_time, end_time, room) " +
+                "VALUES (@teacherId, @subjectId, @dayOfWeek, @startTime, @endTime, @room)",
+                cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@teacherId", teacherId);
+                    cmd.Parameters.AddWithValue("@subjectId", subjectId);
+                    cmd.Parameters.AddWithValue("@dayOfWeek", dayOfWeek);
+                    cmd.Parameters.AddWithValue("@startTime", startTime);
+                    cmd.Parameters.AddWithValue("@endTime", endTime);
+                    cmd.Parameters.AddWithValue("@room", room);
+                });
+
+            Console.WriteLine("Розклад для вчителя успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void DeleteStudentSchedule()
+        {
+            Console.Write("Введіть ID розкладу учня для видалення: ");
+            string scheduleId = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "DELETE FROM Schedules WHERE schedule_id = @scheduleId",
+                cmd => cmd.Parameters.AddWithValue("@scheduleId", scheduleId));
+
+            Console.WriteLine("Розклад учня успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void DeleteTeacherSchedule()
+        {
+            Console.Write("Введіть ID розкладу вчителя для видалення: ");
+            string scheduleId = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "DELETE FROM Schedules_Teachers WHERE schedule_id = @scheduleId",
+                cmd => cmd.Parameters.AddWithValue("@scheduleId", scheduleId));
+
+            Console.WriteLine("Розклад вчителя успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+    }
+
+    static class GradeManager
+    {
+        public static void Menu()
+        {
+            MenuHelper.ShowMenu("Управління оцінками", new Dictionary<string, Action>
+            {
+                { "Список оцінок", ListGrades },
+                { "Додати оцінку", AddGrade },
+                { "Редагувати оцінку", EditGrade },
+                { "Видалити оцінку", DeleteGrade }
+            });
+        }
+
+        private static void ListGrades()
+        {
+            DatabaseHelper.ExecuteQuery(@"
+                SELECT g.grade_id, p.fname, p.name, p.sname, 
+                       s.name AS subject_name, g.grade, g.grade_date, g.comment
+                FROM Grades g
+                JOIN Students st ON g.student_id = st.student_id
+                JOIN Person p ON st.person_id = p.person_id
+                JOIN Subjects s ON g.subject_id = s.subject_id",
+                process: reader =>
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID оцінки: {reader["grade_id"]}, " +
+                            $"Учень: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"Предмет: {reader["subject_name"]}, " +
+                            $"Оцінка: {reader["grade"]}, " +
+                            $"Дата: {reader["grade_date"]}, " +
+                            $"Коментар: {reader["comment"] ?? "Немає коментаря"}");
+                    }
+                });
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void AddGrade()
+        {
+            Console.Write("Введіть ID учня: ");
+            string studentId = Console.ReadLine();
+            Console.Write("Введіть ID предмета: ");
+            string subjectId = Console.ReadLine();
+            Console.Write("Введіть оцінку (0-10): ");
+            string grade = Console.ReadLine();
+            Console.Write("Введіть дату оцінки (РРРР-ММ-ДД): ");
+            string gradeDate = Console.ReadLine();
+            Console.Write("Введіть коментар (необов'язково): ");
+            string comment = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "INSERT INTO Grades (student_id, subject_id, grade, grade_date, comment) " +
+                "VALUES (@studentId, @subjectId, @grade, @gradeDate, NULLIF(@comment, ''))",
+                cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@studentId", studentId);
+                    cmd.Parameters.AddWithValue("@subjectId", subjectId);
+                    cmd.Parameters.AddWithValue("@grade", grade);
+                    cmd.Parameters.AddWithValue("@gradeDate", gradeDate);
+                    cmd.Parameters.AddWithValue("@comment", comment);
+                });
+
+            Console.WriteLine("Оцінку успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void EditGrade()
+        {
+            Console.Write("Введіть ID оцінки для редагування: ");
+            string gradeId = Console.ReadLine();
+
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Нова оцінка (0-10): ");
+            string grade = Console.ReadLine();
+            Console.Write("Нова дата оцінки (РРРР-ММ-ДД): ");
+            string gradeDate = Console.ReadLine();
+            Console.Write("Новий коментар: ");
+            string comment = Console.ReadLine();
+
+            var updates = new List<string>();
+            if (!string.IsNullOrWhiteSpace(grade)) updates.Add("grade = @grade");
+            if (!string.IsNullOrWhiteSpace(gradeDate)) updates.Add("grade_date = @gradeDate");
+            if (!string.IsNullOrWhiteSpace(comment)) updates.Add("comment = @comment");
+
+            if (updates.Count > 0)
+            {
+                DatabaseHelper.ExecuteQuery(
+                    $"UPDATE Grades SET {string.Join(", ", updates)} WHERE grade_id = @gradeId",
+                    cmd =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(grade))
+                            cmd.Parameters.AddWithValue("@grade", grade);
+                        if (!string.IsNullOrWhiteSpace(gradeDate))
+                            cmd.Parameters.AddWithValue("@gradeDate", gradeDate);
+                        if (!string.IsNullOrWhiteSpace(comment))
+                            cmd.Parameters.AddWithValue("@comment", comment);
+                        cmd.Parameters.AddWithValue("@gradeId", gradeId);
+                    });
+
+                Console.WriteLine("Оцінку успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+            else
+            {
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+
+            Console.ReadKey();
+        }
+
+        private static void DeleteGrade()
+        {
+            Console.Write("Введіть ID оцінки для видалення: ");
+            string gradeId = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "DELETE FROM Grades WHERE grade_id = @gradeId",
+                cmd => cmd.Parameters.AddWithValue("@gradeId", gradeId));
+
+            Console.WriteLine("Оцінку успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
     }
@@ -392,15 +681,15 @@ namespace SchoolManagementSystem
     {
         public static void Menu()
         {
-            MenuHelper.ShowMenu("Manage Administration", new Dictionary<string, Action>
+            MenuHelper.ShowMenu("Управління адміністрацією", new Dictionary<string, Action>
             {
-                { "List Administration Staff", ListAdminStaff },
-                { "Add New Admin", AddAdminStaff },
-                { "Edit Admin Staff", EditAdminStaff },
-                { "Delete Admin Staff", DeleteAdminStaff },
-                { "Manage Budget", ManageBudget },
-                { "Manage Library", ManageLibrary },
-                { "Manage Catering", ManageCatering }
+                { "Список адміністративного персоналу", ListAdminStaff },
+                { "Додати нового адміністратора", AddAdminStaff },
+                { "Редагувати адміністратора", EditAdminStaff },
+                { "Видалити адміністратора", DeleteAdminStaff },
+                { "Управління бюджетом", ManageBudget },
+                { "Управління бібліотекою", ManageLibrary },
+                { "Управління харчуванням", ManageCatering }
             });
         }
 
@@ -415,33 +704,33 @@ namespace SchoolManagementSystem
                     while (reader.Read())
                     {
                         Console.WriteLine($"ID: {reader["admin_id"]}, " +
-                            $"Name: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
-                            $"Position: {reader["position"]}, " +
-                            $"Department: {reader["department"]}, " +
+                            $"Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"Посада: {reader["position"]}, " +
+                            $"Відділ: {reader["department"]}, " +
                             $"Email: {reader["email"]}");
                     }
                 });
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void AddAdminStaff()
         {
-            Console.Write("Enter First Name: ");
+            Console.Write("Введіть ім'я: ");
             string fname = Console.ReadLine();
-            Console.Write("Enter Name: ");
+            Console.Write("Введіть прізвище: ");
             string name = Console.ReadLine();
-            Console.Write("Enter Last Name: ");
+            Console.Write("Введіть по батькові: ");
             string sname = Console.ReadLine();
-            Console.Write("Enter Birth Date (YYYY-MM-DD): ");
+            Console.Write("Введіть дату народження (РРРР-ММ-ДД): ");
             string birthDate = Console.ReadLine();
-            Console.Write("Enter Sex (0/1): ");
+            Console.Write("Введіть стать (0/1): ");
             string sex = Console.ReadLine();
-            Console.Write("Enter Position: ");
+            Console.Write("Введіть посаду: ");
             string position = Console.ReadLine();
-            Console.Write("Enter Department (Management/Library/Catering/Facilities/Finance): ");
+            Console.Write("Введіть відділ (Управління/Бібліотека/Харчування/Об'єкти/Фінанси): ");
             string department = Console.ReadLine();
-            Console.Write("Enter Email: ");
+            Console.Write("Введіть email: ");
             string email = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -461,21 +750,21 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@email", email);
                 });
 
-            Console.WriteLine("Admin staff added successfully! Press any key to continue...");
+            Console.WriteLine("Адміністратора успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void EditAdminStaff()
         {
-            Console.Write("Enter Admin ID to edit: ");
+            Console.Write("Введіть ID адміністратора для редагування: ");
             string adminId = Console.ReadLine();
 
-            Console.WriteLine("Leave fields blank to skip updating");
-            Console.Write("New Position: ");
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Нова посада: ");
             string position = Console.ReadLine();
-            Console.Write("New Department: ");
+            Console.Write("Новий відділ: ");
             string department = Console.ReadLine();
-            Console.Write("New Email: ");
+            Console.Write("Новий email: ");
             string email = Console.ReadLine();
 
             var updates = new List<string>();
@@ -498,11 +787,11 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@adminId", adminId);
                     });
 
-                Console.WriteLine("Admin staff updated successfully! Press any key to continue...");
+                Console.WriteLine("Адміністратора успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
             }
             else
             {
-                Console.WriteLine("No updates made. Press any key to continue...");
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
             }
 
             Console.ReadKey();
@@ -510,7 +799,7 @@ namespace SchoolManagementSystem
 
         private static void DeleteAdminStaff()
         {
-            Console.Write("Enter Admin ID to delete: ");
+            Console.Write("Введіть ID адміністратора для видалення: ");
             string adminId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -520,16 +809,16 @@ namespace SchoolManagementSystem
                   )",
                 cmd => cmd.Parameters.AddWithValue("@adminId", adminId));
 
-            Console.WriteLine("Admin staff deleted successfully! Press any key to continue...");
+            Console.WriteLine("Адміністратора успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void ManageBudget()
         {
-            MenuHelper.ShowMenu("Manage Budget", new Dictionary<string, Action>
+            MenuHelper.ShowMenu("Управління бюджетом", new Dictionary<string, Action>
             {
-                { "View Budget", ViewBudget },
-                { "Update Budget", UpdateBudget }
+                { "Переглянути бюджет", ViewBudget },
+                { "Оновити бюджет", UpdateBudget }
             });
         }
 
@@ -544,23 +833,23 @@ namespace SchoolManagementSystem
                 {
                     while (reader.Read())
                     {
-                        Console.WriteLine($"Budget ID: {reader["budget_id"]}, " +
-                            $"Department: {reader["department"]}, " +
-                            $"Total Budget: {reader["total_budget"]}, " +
-                            $"Approved By: {reader["approved_by"] ?? "Not Approved"}");
+                        Console.WriteLine($"ID бюджету: {reader["budget_id"]}, " +
+                            $"Відділ: {reader["department"]}, " +
+                            $"Загальний бюджет: {reader["total_budget"]}, " +
+                            $"Затверджено: {reader["approved_by"] ?? "Не затверджено"}");
                     }
                 });
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void UpdateBudget()
         {
-            Console.Write("Enter Budget ID: ");
+            Console.Write("Введіть ID бюджету: ");
             string budgetId = Console.ReadLine();
-            Console.Write("Enter New Total Budget: ");
+            Console.Write("Введіть новий загальний бюджет: ");
             string totalBudget = Console.ReadLine();
-            Console.Write("Enter Approving Admin ID: ");
+            Console.Write("Введіть ID адміністратора, який затверджує: ");
             string approvedById = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -572,17 +861,17 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@budgetId", budgetId);
                 });
 
-            Console.WriteLine("Budget updated successfully! Press any key to continue...");
+            Console.WriteLine("Бюджет успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void ManageLibrary()
         {
-            MenuHelper.ShowMenu("Manage Library", new Dictionary<string, Action>
+            MenuHelper.ShowMenu("Управління бібліотекою", new Dictionary<string, Action>
             {
-                { "List Books", ListBooks },
-                { "Add Book", AddBook },
-                { "Remove Book", RemoveBook }
+                { "Список книг", ListBooks },
+                { "Додати книгу", AddBook },
+                { "Видалити книгу", RemoveBook }
             });
         }
 
@@ -597,26 +886,26 @@ namespace SchoolManagementSystem
                 {
                     while (reader.Read())
                     {
-                        Console.WriteLine($"Book ID: {reader["book_id"]}, " +
-                            $"Title: {reader["book_title"]}, " +
-                            $"Author: {reader["author"]}, " +
-                            $"Category: {reader["category"]}, " +
-                            $"Librarian: {reader["librarian"] ?? "Unassigned"}");
+                        Console.WriteLine($"ID книги: {reader["book_id"]}, " +
+                            $"Назва: {reader["book_title"]}, " +
+                            $"Автор: {reader["author"]}, " +
+                            $"Категорія: {reader["category"]}, " +
+                            $"Бібліотекар: {reader["librarian"] ?? "Не призначено"}");
                     }
                 });
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void AddBook()
         {
-            Console.Write("Enter Book Title: ");
+            Console.Write("Введіть назву книги: ");
             string bookTitle = Console.ReadLine();
-            Console.Write("Enter Author: ");
+            Console.Write("Введіть автора: ");
             string author = Console.ReadLine();
-            Console.Write("Enter Category: ");
+            Console.Write("Введіть категорію: ");
             string category = Console.ReadLine();
-            Console.Write("Enter Librarian ID (optional): ");
+            Console.Write("Введіть ID бібліотекаря (необов'язково): ");
             string librarianId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -630,30 +919,30 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@librarianId", string.IsNullOrWhiteSpace(librarianId) ? DBNull.Value : (object)librarianId);
                 });
 
-            Console.WriteLine("Book added successfully! Press any key to continue...");
+            Console.WriteLine("Книгу успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void RemoveBook()
         {
-            Console.Write("Enter Book ID to remove: ");
+            Console.Write("Введіть ID книги для видалення: ");
             string bookId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
                 "DELETE FROM Library WHERE book_id = @bookId",
                 cmd => cmd.Parameters.AddWithValue("@bookId", bookId));
 
-            Console.WriteLine("Book removed successfully! Press any key to continue...");
+            Console.WriteLine("Книгу успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void ManageCatering()
         {
-            MenuHelper.ShowMenu("Manage Catering", new Dictionary<string, Action>
+            MenuHelper.ShowMenu("Управління харчуванням", new Dictionary<string, Action>
             {
-                { "List Dishes", ListDishes },
-                { "Add Dish", AddDish },
-                { "Remove Dish", RemoveDish }
+                { "Список страв", ListDishes },
+                { "Додати страву", AddDish },
+                { "Видалити страву", RemoveDish }
             });
         }
 
@@ -668,23 +957,23 @@ namespace SchoolManagementSystem
                 {
                     while (reader.Read())
                     {
-                        Console.WriteLine($"Dish ID: {reader["catering_id"]}, " +
-                            $"Name: {reader["dish_name"]}, " +
-                            $"Cost: {reader["cost"]}, " +
-                            $"Manager: {reader["catering_manager"] ?? "Unassigned"}");
+                        Console.WriteLine($"ID страви: {reader["catering_id"]}, " +
+                            $"Назва: {reader["dish_name"]}, " +
+                            $"Вартість: {reader["cost"]}, " +
+                            $"Менеджер: {reader["catering_manager"] ?? "Не призначено"}");
                     }
                 });
-            Console.WriteLine("\nPress any key to continue...");
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void AddDish()
         {
-            Console.Write("Enter Dish Name: ");
+            Console.Write("Введіть назву страви: ");
             string dishName = Console.ReadLine();
-            Console.Write("Enter Dish Cost: ");
+            Console.Write("Введіть вартість: ");
             string cost = Console.ReadLine();
-            Console.Write("Enter Catering Manager ID (optional): ");
+            Console.Write("Введіть ID менеджера харчування (необов'язково): ");
             string cateringManagerId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
@@ -697,20 +986,20 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@cateringManagerId", string.IsNullOrWhiteSpace(cateringManagerId) ? DBNull.Value : (object)cateringManagerId);
                 });
 
-            Console.WriteLine("Dish added successfully! Press any key to continue...");
+            Console.WriteLine("Страву успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
 
         private static void RemoveDish()
         {
-            Console.Write("Enter Dish ID to remove: ");
+            Console.Write("Введіть ID страви для видалення: ");
             string cateringId = Console.ReadLine();
 
             DatabaseHelper.ExecuteQuery(
                 "DELETE FROM Catering WHERE catering_id = @cateringId",
                 cmd => cmd.Parameters.AddWithValue("@cateringId", cateringId));
 
-            Console.WriteLine("Dish removed successfully! Press any key to continue...");
+            Console.WriteLine("Страву успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
     }
