@@ -21,7 +21,8 @@ namespace SchoolManagementSystem
                 Console.WriteLine("3. Управління адміністрацією");
                 Console.WriteLine("4. Управління розкладом");
                 Console.WriteLine("5. Управління оцінками");
-                Console.WriteLine("6. Вихід");
+                Console.WriteLine("6. Управління відвідуваністю");
+                Console.WriteLine("7. Вихід");
                 Console.Write("Виберіть опцію: ");
 
                 switch (Console.ReadLine())
@@ -42,6 +43,9 @@ namespace SchoolManagementSystem
                         GradeManager.Menu();
                         break;
                     case "6":
+                        AttendanceManager.Menu();
+                        break;
+                    case "7":
                         Console.WriteLine("До побачення!");
                         return;
                     default:
@@ -405,15 +409,18 @@ namespace SchoolManagementSystem
         public static void Menu()
         {
             MenuHelper.ShowMenu("Управління розкладом", new Dictionary<string, Action>
-            {
-                { "Список розкладів учнів", ListStudentSchedules },
-                { "Список розкладів вчителів", ListTeacherSchedules },
-                { "Додати розклад для учня", AddStudentSchedule },
-                { "Додати розклад для вчителя", AddTeacherSchedule },
-                { "Видалити розклад учня", DeleteStudentSchedule },
-                { "Видалити розклад вчителя", DeleteTeacherSchedule }
-            });
+        {
+            { "Список розкладів учнів", ListStudentSchedules },
+            { "Список розкладів вчителів", ListTeacherSchedules },
+            { "Додати розклад для учня", AddStudentSchedule },
+            { "Додати розклад для вчителя", AddTeacherSchedule },
+            { "Редагувати розклад учня", EditStudentSchedule },
+            { "Редагувати розклад вчителя", EditTeacherSchedule },
+            { "Видалити розклад учня", DeleteStudentSchedule },
+            { "Видалити розклад вчителя", DeleteTeacherSchedule }
+        });
         }
+
 
         private static void ListStudentSchedules()
         {
@@ -525,6 +532,107 @@ namespace SchoolManagementSystem
             Console.WriteLine("Розклад для вчителя успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
+
+        private static void EditStudentSchedule()
+        {
+            Console.Write("Введіть ID розкладу учня для редагування: ");
+            string scheduleId = Console.ReadLine();
+
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Новий ID класу: ");
+            string classId = Console.ReadLine();
+            Console.Write("Новий ID предмета: ");
+            string subjectId = Console.ReadLine();
+            Console.Write("Новий день тижня: ");
+            string dayOfWeek = Console.ReadLine();
+            Console.Write("Новий час початку (ГГ:ХХ): ");
+            string startTime = Console.ReadLine();
+            Console.Write("Новий час закінчення (ГГ:ХХ): ");
+            string endTime = Console.ReadLine();
+
+            var updates = new List<string>();
+            if (!string.IsNullOrWhiteSpace(classId)) updates.Add("class_id = @classId");
+            if (!string.IsNullOrWhiteSpace(subjectId)) updates.Add("subject_id = @subjectId");
+            if (!string.IsNullOrWhiteSpace(dayOfWeek)) updates.Add("day_of_week = @dayOfWeek");
+            if (!string.IsNullOrWhiteSpace(startTime)) updates.Add("start_time = @startTime");
+            if (!string.IsNullOrWhiteSpace(endTime)) updates.Add("end_time = @endTime");
+
+            if (updates.Count > 0)
+            {
+                DatabaseHelper.ExecuteQuery(
+                    $"UPDATE Schedules SET {string.Join(", ", updates)} WHERE schedule_id = @scheduleId",
+                    cmd =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(classId)) cmd.Parameters.AddWithValue("@classId", classId);
+                        if (!string.IsNullOrWhiteSpace(subjectId)) cmd.Parameters.AddWithValue("@subjectId", subjectId);
+                        if (!string.IsNullOrWhiteSpace(dayOfWeek)) cmd.Parameters.AddWithValue("@dayOfWeek", dayOfWeek);
+                        if (!string.IsNullOrWhiteSpace(startTime)) cmd.Parameters.AddWithValue("@startTime", startTime);
+                        if (!string.IsNullOrWhiteSpace(endTime)) cmd.Parameters.AddWithValue("@endTime", endTime);
+                        cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
+                    });
+
+                Console.WriteLine("Розклад учня успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+            else
+            {
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+
+            Console.ReadKey();
+        }
+
+        private static void EditTeacherSchedule()
+        {
+            Console.Write("Введіть ID розкладу вчителя для редагування: ");
+            string scheduleId = Console.ReadLine();
+
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Новий ID вчителя: ");
+            string teacherId = Console.ReadLine();
+            Console.Write("Новий ID предмета: ");
+            string subjectId = Console.ReadLine();
+            Console.Write("Новий день тижня (1-7): ");
+            string dayOfWeek = Console.ReadLine();
+            Console.Write("Новий час початку (ГГ:ХХ): ");
+            string startTime = Console.ReadLine();
+            Console.Write("Новий час закінчення (ГГ:ХХ): ");
+            string endTime = Console.ReadLine();
+            Console.Write("Нова аудиторія: ");
+            string room = Console.ReadLine();
+
+            var updates = new List<string>();
+            if (!string.IsNullOrWhiteSpace(teacherId)) updates.Add("teacher_id = @teacherId");
+            if (!string.IsNullOrWhiteSpace(subjectId)) updates.Add("subject_id = @subjectId");
+            if (!string.IsNullOrWhiteSpace(dayOfWeek)) updates.Add("day_of_week = @dayOfWeek");
+            if (!string.IsNullOrWhiteSpace(startTime)) updates.Add("start_time = @startTime");
+            if (!string.IsNullOrWhiteSpace(endTime)) updates.Add("end_time = @endTime");
+            if (!string.IsNullOrWhiteSpace(room)) updates.Add("room = @room");
+
+            if (updates.Count > 0)
+            {
+                DatabaseHelper.ExecuteQuery(
+                    $"UPDATE Schedules_Teachers SET {string.Join(", ", updates)} WHERE schedule_id = @scheduleId",
+                    cmd =>
+                    {
+                        if (!string.IsNullOrWhiteSpace(teacherId)) cmd.Parameters.AddWithValue("@teacherId", teacherId);
+                        if (!string.IsNullOrWhiteSpace(subjectId)) cmd.Parameters.AddWithValue("@subjectId", subjectId);
+                        if (!string.IsNullOrWhiteSpace(dayOfWeek)) cmd.Parameters.AddWithValue("@dayOfWeek", dayOfWeek);
+                        if (!string.IsNullOrWhiteSpace(startTime)) cmd.Parameters.AddWithValue("@startTime", startTime);
+                        if (!string.IsNullOrWhiteSpace(endTime)) cmd.Parameters.AddWithValue("@endTime", endTime);
+                        if (!string.IsNullOrWhiteSpace(room)) cmd.Parameters.AddWithValue("@room", room);
+                        cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
+                    });
+
+                Console.WriteLine("Розклад вчителя успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+            else
+            {
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+
+            Console.ReadKey();
+        }
+
 
         private static void DeleteStudentSchedule()
         {
@@ -1000,6 +1108,112 @@ namespace SchoolManagementSystem
                 cmd => cmd.Parameters.AddWithValue("@cateringId", cateringId));
 
             Console.WriteLine("Страву успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+    }
+    static class AttendanceManager
+    {
+        public static void Menu()
+        {
+            MenuHelper.ShowMenu("Управління відвідуваністю", new Dictionary<string, Action>
+        {
+            { "Переглянути відвідуваність", ViewAttendance },
+            { "Додати запис про відвідуваність", AddAttendance },
+            { "Редагувати запис про відвідуваність", EditAttendance },
+            { "Видалити запис про відвідуваність", DeleteAttendance }
+        });
+        }
+
+        private static void ViewAttendance()
+        {
+            DatabaseHelper.ExecuteQuery(@"
+            SELECT a.attendance_id, p.fname, p.name, p.sname, s.name AS subject_name, 
+                   a.attendance_date, a.status 
+            FROM Attendance a
+            JOIN Students st ON a.student_id = st.student_id
+            JOIN Person p ON st.person_id = p.person_id
+            JOIN Schedules sc ON a.schedule_id = sc.schedule_id
+            JOIN Subjects s ON sc.subject_id = s.subject_id",
+                process: reader =>
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID запису: {reader["attendance_id"]}, " +
+                            $"Учень: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"Предмет: {reader["subject_name"]}, " +
+                            $"Дата: {reader["attendance_date"]}, " +
+                            $"Статус: {reader["status"]}");
+                    }
+                });
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void AddAttendance()
+        {
+            Console.Write("Введіть ID учня: ");
+            string studentId = Console.ReadLine();
+            Console.Write("Введіть ID розкладу: ");
+            string scheduleId = Console.ReadLine();
+            Console.Write("Введіть дату (РРРР-ММ-ДД): ");
+            string attendanceDate = Console.ReadLine();
+            Console.Write("Введіть статус (Present/Absent/Late/Excused): ");
+            string status = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "INSERT INTO Attendance (student_id, schedule_id, attendance_date, status) " +
+                "VALUES (@studentId, @scheduleId, @attendanceDate, @status)",
+                cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@studentId", studentId);
+                    cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
+                    cmd.Parameters.AddWithValue("@attendanceDate", attendanceDate);
+                    cmd.Parameters.AddWithValue("@status", status);
+                });
+
+            Console.WriteLine("Запис про відвідуваність успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ReadKey();
+        }
+
+        private static void EditAttendance()
+        {
+            Console.Write("Введіть ID запису про відвідуваність для редагування: ");
+            string attendanceId = Console.ReadLine();
+
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Новий статус (Present/Absent/Late/Excused): ");
+            string status = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                DatabaseHelper.ExecuteQuery(
+                    "UPDATE Attendance SET status = @status WHERE attendance_id = @attendanceId",
+                    cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@status", status);
+                        cmd.Parameters.AddWithValue("@attendanceId", attendanceId);
+                    });
+
+                Console.WriteLine("Запис про відвідуваність успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+            else
+            {
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+            }
+
+            Console.ReadKey();
+        }
+
+        private static void DeleteAttendance()
+        {
+            Console.Write("Введіть ID запису про відвідуваність для видалення: ");
+            string attendanceId = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "DELETE FROM Attendance WHERE attendance_id = @attendanceId",
+                cmd => cmd.Parameters.AddWithValue("@attendanceId", attendanceId));
+
+            Console.WriteLine("Запис про відвідуваність успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
             Console.ReadKey();
         }
     }
