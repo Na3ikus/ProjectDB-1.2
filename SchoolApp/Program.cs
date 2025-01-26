@@ -15,7 +15,15 @@ namespace SchoolManagementSystem
 
             while (true)
             {
-                Console.WriteLine("=== Система управління школою ===");
+                Console.Clear();
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine("╔══════════════════════════════════════╗");
+                Console.WriteLine("║        Система управління школою     ║");
+                Console.WriteLine("╚══════════════════════════════════════╝");
+                Console.ResetColor();
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 Console.WriteLine("1. Управління учнями");
                 Console.WriteLine("2. Управління вчителями");
                 Console.WriteLine("3. Управління адміністрацією");
@@ -23,7 +31,12 @@ namespace SchoolManagementSystem
                 Console.WriteLine("5. Управління оцінками");
                 Console.WriteLine("6. Управління відвідуваністю");
                 Console.WriteLine("7. Вихід");
+                Console.ResetColor();
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write("Виберіть опцію: ");
+                Console.ResetColor();
 
                 switch (Console.ReadLine())
                 {
@@ -46,10 +59,14 @@ namespace SchoolManagementSystem
                         AttendanceManager.Menu();
                         break;
                     case "7":
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("До побачення!");
+                        Console.ResetColor();
                         return;
                     default:
+                        Console.ForegroundColor = ConsoleColor.Red;
                         Console.WriteLine("Невірна опція. Натисніть будь-яку клавішу, щоб спробувати ще раз...");
+                        Console.ResetColor();
                         Console.ReadKey();
                         break;
                 }
@@ -97,7 +114,14 @@ namespace SchoolManagementSystem
             while (true)
             {
                 Console.Clear();
-                Console.WriteLine($"=== {title} ===");
+                Console.ForegroundColor = ConsoleColor.Cyan;
+                Console.WriteLine($"╔══════════════════════════════════════╗");
+                Console.WriteLine($"║        {title.PadRight(30)}║");
+                Console.WriteLine($"╚══════════════════════════════════════╝");
+                Console.ResetColor();
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Yellow;
                 int i = 1;
                 foreach (var option in options)
                 {
@@ -105,7 +129,12 @@ namespace SchoolManagementSystem
                     i++;
                 }
                 Console.WriteLine("0. Назад");
+                Console.ResetColor();
+                Console.WriteLine();
+
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.Write("Виберіть опцію: ");
+                Console.ResetColor();
 
                 if (int.TryParse(Console.ReadLine(), out int choice) && choice >= 0 && choice <= options.Count)
                 {
@@ -114,7 +143,9 @@ namespace SchoolManagementSystem
                 }
                 else
                 {
+                    Console.ForegroundColor = ConsoleColor.Red;
                     Console.WriteLine("Невірний вибір. Натисніть будь-яку клавішу, щоб спробувати ще раз...");
+                    Console.ResetColor();
                     Console.ReadKey();
                 }
             }
@@ -136,20 +167,49 @@ namespace SchoolManagementSystem
 
         private static void ListStudents()
         {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╔════════════════════════════════════════════════════════════════════╗");
+            Console.WriteLine("║                        Список усіх учнів                           ║");
+            Console.WriteLine("╠════════════════════════════════════════════════════════════════════╣");
+            Console.ResetColor();
+
             DatabaseHelper.ExecuteQuery(@"
-            SELECT s.student_id, p.fname, p.name, p.sname, s.class_id 
-            FROM Students s
-            JOIN Person p ON s.person_id = p.person_id",
+        SELECT s.student_id, p.fname, p.name, p.sname, s.class_id 
+        FROM Students s
+        JOIN Person p ON s.person_id = p.person_id",
                 process: reader =>
                 {
+                    int count = 0;
                     while (reader.Read())
                     {
-                        Console.WriteLine($"ID: {reader["student_id"]}, " +
-                            $"Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
-                            $"ID класу: {reader["class_id"]}");
+                        count++;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"╔════════════════════════════════════════════════════════════════════╗");
+                        Console.WriteLine($"║ Учень #{count}");
+                        Console.WriteLine($"╠────────────────────────────────────────────────────────────────────╣");
+                        Console.ResetColor();
+                        Console.WriteLine($"║ ID учня: {reader["student_id"]}");
+                        Console.WriteLine($"║ Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}");
+                        Console.WriteLine($"║ ID класу: {reader["class_id"]}");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"╚════════════════════════════════════════════════════════════════════╝");
+                        Console.ResetColor();
+                    }
+
+                    if (count == 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("║ Немає даних про учнів.");
+                        Console.ResetColor();
                     }
                 });
-            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╠════════════════════════════════════════════════════════════════════╣");
+            Console.WriteLine("║ Натисніть будь-яку клавішу, щоб продовжити...                      ║");
+            Console.WriteLine("╚════════════════════════════════════════════════════════════════════╝");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -183,7 +243,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@classId", classId);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Учень успішно доданий! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -226,11 +288,15 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@studentId", studentId);
                     });
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Учень успішно оновлений! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
 
             Console.ReadKey();
@@ -241,6 +307,7 @@ namespace SchoolManagementSystem
             Console.Write("Введіть ID учня для видалення: ");
             string studentId = Console.ReadLine();
 
+            // Видаляємо пов'язані записи з таблиць Attendance, Grades і Students
             DatabaseHelper.ExecuteQuery(
                 @"DELETE FROM Attendance WHERE student_id = @studentId;
           DELETE FROM Grades WHERE student_id = @studentId;
@@ -250,7 +317,9 @@ namespace SchoolManagementSystem
           )",
                 cmd => cmd.Parameters.AddWithValue("@studentId", studentId));
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Учень та пов'язані записи успішно видалені! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
     }
@@ -271,22 +340,51 @@ namespace SchoolManagementSystem
 
         private static void ListTeachers()
         {
+            Console.Clear();
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╔════════════════════════════════════════════════════════════════════╗");
+            Console.WriteLine("║                      Список усіх вчителів                          ║");
+            Console.WriteLine("╠════════════════════════════════════════════════════════════════════╣");
+            Console.ResetColor();
+
             DatabaseHelper.ExecuteQuery(@"
-                SELECT t.teacher_id, p.fname, p.name, p.sname, d.name as department, t.position 
-                FROM Teachers t 
-                JOIN Person p ON t.person_id = p.person_id 
-                JOIN Departments d ON t.department_id = d.department_id",
+        SELECT t.teacher_id, p.fname, p.name, p.sname, d.name as department, t.position 
+        FROM Teachers t 
+        JOIN Person p ON t.person_id = p.person_id 
+        JOIN Departments d ON t.department_id = d.department_id",
                 process: reader =>
                 {
+                    int count = 0;
                     while (reader.Read())
                     {
-                        Console.WriteLine($"ID: {reader["teacher_id"]}, " +
-                            $"Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
-                            $"Відділ: {reader["department"]}, " +
-                            $"Посада: {reader["position"]}");
+                        count++;
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"╔════════════════════════════════════════════════════════════════════╗");
+                        Console.WriteLine($"║ Вчитель #{count}");
+                        Console.WriteLine($"╠────────────────────────────────────────────────────────────────────╣");
+                        Console.ResetColor();
+                        Console.WriteLine($"║ ID вчителя: {reader["teacher_id"]}");
+                        Console.WriteLine($"║ Ім'я: {reader["fname"]} {reader["name"]} {reader["sname"]}");
+                        Console.WriteLine($"║ Відділ: {reader["department"]}");
+                        Console.WriteLine($"║ Посада: {reader["position"]}");
+                        Console.ForegroundColor = ConsoleColor.Yellow;
+                        Console.WriteLine($"╚════════════════════════════════════════════════════════════════════╝");
+                        Console.ResetColor();
+                    }
+
+                    if (count == 0)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Red;
+                        Console.WriteLine("║ Немає даних про вчителів.");
+                        Console.ResetColor();
                     }
                 });
-            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            Console.WriteLine("╠════════════════════════════════════════════════════════════════════╣");
+            Console.WriteLine("║ Натисніть будь-яку клавішу, щоб продовжити...                      ║");
+            Console.WriteLine("╚════════════════════════════════════════════════════════════════════╝");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -326,7 +424,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@position", position);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Вчитель успішно доданий! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -358,11 +458,15 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@teacherId", teacherId);
                     });
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Вчитель успішно оновлений! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
 
             Console.ReadKey();
@@ -373,14 +477,19 @@ namespace SchoolManagementSystem
             Console.Write("Введіть ID вчителя для видалення: ");
             string teacherId = Console.ReadLine();
 
+            // Видаляємо пов'язані записи з таблиць Schedules_Teachers і Teacher_Subjects
             DatabaseHelper.ExecuteQuery(
-                @"DELETE FROM Teachers WHERE teacher_id = @teacherId;
-                  DELETE FROM Person WHERE person_id = (
-                      SELECT person_id FROM Teachers WHERE teacher_id = @teacherId
-                  )",
+                @"DELETE FROM schedules_teachers WHERE teacher_id = @teacherId;
+          DELETE FROM teacher_subjects WHERE teacher_id = @teacherId;
+          DELETE FROM Teachers WHERE teacher_id = @teacherId;
+          DELETE FROM Person WHERE person_id = (
+              SELECT person_id FROM Teachers WHERE teacher_id = @teacherId
+          )",
                 cmd => cmd.Parameters.AddWithValue("@teacherId", teacherId));
 
-            Console.WriteLine("Вчитель успішно видалений! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Вчитель та пов'язані записи успішно видалені! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -399,7 +508,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@subjectId", subjectId);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Предмет успішно призначено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
     }
@@ -409,18 +520,17 @@ namespace SchoolManagementSystem
         public static void Menu()
         {
             MenuHelper.ShowMenu("Управління розкладом", new Dictionary<string, Action>
-        {
-            { "Список розкладів учнів", ListStudentSchedules },
-            { "Список розкладів вчителів", ListTeacherSchedules },
-            { "Додати розклад для учня", AddStudentSchedule },
-            { "Додати розклад для вчителя", AddTeacherSchedule },
-            { "Редагувати розклад учня", EditStudentSchedule },
-            { "Редагувати розклад вчителя", EditTeacherSchedule },
-            { "Видалити розклад учня", DeleteStudentSchedule },
-            { "Видалити розклад вчителя", DeleteTeacherSchedule }
-        });
+            {
+                { "Список розкладів учнів", ListStudentSchedules },
+                { "Список розкладів вчителів", ListTeacherSchedules },
+                { "Додати розклад для учня", AddStudentSchedule },
+                                { "Додати розклад для вчителя", AddTeacherSchedule },
+                { "Редагувати розклад учня", EditStudentSchedule },
+                { "Редагувати розклад вчителя", EditTeacherSchedule },
+                { "Видалити розклад учня", DeleteStudentSchedule },
+                { "Видалити розклад вчителя", DeleteTeacherSchedule }
+            });
         }
-
 
         private static void ListStudentSchedules()
         {
@@ -442,7 +552,9 @@ namespace SchoolManagementSystem
                             $"Час: {reader["start_time"]} - {reader["end_time"]}");
                     }
                 });
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -468,7 +580,9 @@ namespace SchoolManagementSystem
                             $"Аудиторія: {reader["room"]}");
                     }
                 });
-            Console.WriteLine("\nНатисніть будь-яку клавішу,");
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -497,7 +611,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@endTime", endTime);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Розклад для учня успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -529,7 +645,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@room", room);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Розклад для вчителя успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -571,11 +689,15 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
                     });
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Розклад учня успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
 
             Console.ReadKey();
@@ -623,16 +745,19 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
                     });
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Розклад вчителя успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
 
             Console.ReadKey();
         }
-
 
         private static void DeleteStudentSchedule()
         {
@@ -643,7 +768,9 @@ namespace SchoolManagementSystem
                 "DELETE FROM Schedules WHERE schedule_id = @scheduleId",
                 cmd => cmd.Parameters.AddWithValue("@scheduleId", scheduleId));
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Розклад учня успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -656,7 +783,9 @@ namespace SchoolManagementSystem
                 "DELETE FROM Schedules_Teachers WHERE schedule_id = @scheduleId",
                 cmd => cmd.Parameters.AddWithValue("@scheduleId", scheduleId));
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Розклад вчителя успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
     }
@@ -695,7 +824,9 @@ namespace SchoolManagementSystem
                             $"Коментар: {reader["comment"] ?? "Немає коментаря"}");
                     }
                 });
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -724,7 +855,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@comment", comment);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Оцінку успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -761,11 +894,15 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@gradeId", gradeId);
                     });
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Оцінку успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
 
             Console.ReadKey();
@@ -780,7 +917,126 @@ namespace SchoolManagementSystem
                 "DELETE FROM Grades WHERE grade_id = @gradeId",
                 cmd => cmd.Parameters.AddWithValue("@gradeId", gradeId));
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Оцінку успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+    }
+
+    static class AttendanceManager
+    {
+        public static void Menu()
+        {
+            MenuHelper.ShowMenu("Управління відвідуваністю", new Dictionary<string, Action>
+            {
+                { "Переглянути відвідуваність", ViewAttendance },
+                { "Додати запис про відвідуваність", AddAttendance },
+                { "Редагувати запис про відвідуваність", EditAttendance },
+                { "Видалити запис про відвідуваність", DeleteAttendance }
+            });
+        }
+
+        private static void ViewAttendance()
+        {
+            DatabaseHelper.ExecuteQuery(@"
+                SELECT a.attendance_id, p.fname, p.name, p.sname, s.name AS subject_name, 
+                       a.attendance_date, a.status 
+                FROM Attendance a
+                JOIN Students st ON a.student_id = st.student_id
+                JOIN Person p ON st.person_id = p.person_id
+                JOIN Schedules sc ON a.schedule_id = sc.schedule_id
+                JOIN Subjects s ON sc.subject_id = s.subject_id",
+                process: reader =>
+                {
+                    while (reader.Read())
+                    {
+                        Console.WriteLine($"ID запису: {reader["attendance_id"]}, " +
+                            $"Учень: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
+                            $"Предмет: {reader["subject_name"]}, " +
+                            $"Дата: {reader["attendance_date"]}, " +
+                            $"Статус: {reader["status"]}");
+                    }
+                });
+            Console.ForegroundColor = ConsoleColor.Yellow;
+            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        private static void AddAttendance()
+        {
+            Console.Write("Введіть ID учня: ");
+            string studentId = Console.ReadLine();
+            Console.Write("Введіть ID розкладу: ");
+            string scheduleId = Console.ReadLine();
+            Console.Write("Введіть дату (РРРР-ММ-ДД): ");
+            string attendanceDate = Console.ReadLine();
+            Console.Write("Введіть статус (Present/Absent/Late/Excused): ");
+            string status = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "INSERT INTO Attendance (student_id, schedule_id, attendance_date, status) " +
+                "VALUES (@studentId, @scheduleId, @attendanceDate, @status)",
+                cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@studentId", studentId);
+                    cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
+                    cmd.Parameters.AddWithValue("@attendanceDate", attendanceDate);
+                    cmd.Parameters.AddWithValue("@status", status);
+                });
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Запис про відвідуваність успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
+            Console.ReadKey();
+        }
+
+        private static void EditAttendance()
+        {
+            Console.Write("Введіть ID запису про відвідуваність для редагування: ");
+            string attendanceId = Console.ReadLine();
+
+            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
+            Console.Write("Новий статус (Present/Absent/Late/Excused): ");
+            string status = Console.ReadLine();
+
+            if (!string.IsNullOrWhiteSpace(status))
+            {
+                DatabaseHelper.ExecuteQuery(
+                    "UPDATE Attendance SET status = @status WHERE attendance_id = @attendanceId",
+                    cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@status", status);
+                        cmd.Parameters.AddWithValue("@attendanceId", attendanceId);
+                    });
+
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Запис про відвідуваність успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
+            }
+            else
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
+            }
+
+            Console.ReadKey();
+        }
+
+        private static void DeleteAttendance()
+        {
+            Console.Write("Введіть ID запису про відвідуваність для видалення: ");
+            string attendanceId = Console.ReadLine();
+
+            DatabaseHelper.ExecuteQuery(
+                "DELETE FROM Attendance WHERE attendance_id = @attendanceId",
+                cmd => cmd.Parameters.AddWithValue("@attendanceId", attendanceId));
+
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Запис про відвідуваність успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
     }
@@ -818,7 +1074,9 @@ namespace SchoolManagementSystem
                             $"Email: {reader["email"]}");
                     }
                 });
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -858,7 +1116,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@email", email);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Адміністратора успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -895,11 +1155,15 @@ namespace SchoolManagementSystem
                         cmd.Parameters.AddWithValue("@adminId", adminId);
                     });
 
+                Console.ForegroundColor = ConsoleColor.Green;
                 Console.WriteLine("Адміністратора успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
             else
             {
+                Console.ForegroundColor = ConsoleColor.Red;
                 Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
             }
 
             Console.ReadKey();
@@ -910,14 +1174,20 @@ namespace SchoolManagementSystem
             Console.Write("Введіть ID адміністратора для видалення: ");
             string adminId = Console.ReadLine();
 
+            // Видаляємо пов'язані записи з таблиць Budget, Library, Catering (якщо вони існують)
             DatabaseHelper.ExecuteQuery(
-                @"DELETE FROM Administration WHERE admin_id = @adminId;
-                  DELETE FROM Person WHERE person_id = (
-                      SELECT person_id FROM Administration WHERE admin_id = @adminId
-                  )",
+                @"DELETE FROM Budget WHERE approved_by_id = @adminId;
+          DELETE FROM Library WHERE librarian_id = @adminId;
+          DELETE FROM Catering WHERE catering_manager_id = @adminId;
+          DELETE FROM Administration WHERE admin_id = @adminId;
+          DELETE FROM Person WHERE person_id = (
+              SELECT person_id FROM Administration WHERE admin_id = @adminId
+          )",
                 cmd => cmd.Parameters.AddWithValue("@adminId", adminId));
 
-            Console.WriteLine("Адміністратора успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ForegroundColor = ConsoleColor.Green;
+            Console.WriteLine("Адміністратора та пов'язані записи успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -947,7 +1217,9 @@ namespace SchoolManagementSystem
                             $"Затверджено: {reader["approved_by"] ?? "Не затверджено"}");
                     }
                 });
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -969,7 +1241,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@budgetId", budgetId);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Бюджет успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -1001,7 +1275,9 @@ namespace SchoolManagementSystem
                             $"Бібліотекар: {reader["librarian"] ?? "Не призначено"}");
                     }
                 });
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -1027,7 +1303,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@librarianId", string.IsNullOrWhiteSpace(librarianId) ? DBNull.Value : (object)librarianId);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Книгу успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -1040,7 +1318,9 @@ namespace SchoolManagementSystem
                 "DELETE FROM Library WHERE book_id = @bookId",
                 cmd => cmd.Parameters.AddWithValue("@bookId", bookId));
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Книгу успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -1071,7 +1351,9 @@ namespace SchoolManagementSystem
                             $"Менеджер: {reader["catering_manager"] ?? "Не призначено"}");
                     }
                 });
+            Console.ForegroundColor = ConsoleColor.Yellow;
             Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -1094,7 +1376,9 @@ namespace SchoolManagementSystem
                     cmd.Parameters.AddWithValue("@cateringManagerId", string.IsNullOrWhiteSpace(cateringManagerId) ? DBNull.Value : (object)cateringManagerId);
                 });
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Страву успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
 
@@ -1107,113 +1391,9 @@ namespace SchoolManagementSystem
                 "DELETE FROM Catering WHERE catering_id = @cateringId",
                 cmd => cmd.Parameters.AddWithValue("@cateringId", cateringId));
 
+            Console.ForegroundColor = ConsoleColor.Green;
             Console.WriteLine("Страву успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
-            Console.ReadKey();
-        }
-    }
-    static class AttendanceManager
-    {
-        public static void Menu()
-        {
-            MenuHelper.ShowMenu("Управління відвідуваністю", new Dictionary<string, Action>
-        {
-            { "Переглянути відвідуваність", ViewAttendance },
-            { "Додати запис про відвідуваність", AddAttendance },
-            { "Редагувати запис про відвідуваність", EditAttendance },
-            { "Видалити запис про відвідуваність", DeleteAttendance }
-        });
-        }
-
-        private static void ViewAttendance()
-        {
-            DatabaseHelper.ExecuteQuery(@"
-            SELECT a.attendance_id, p.fname, p.name, p.sname, s.name AS subject_name, 
-                   a.attendance_date, a.status 
-            FROM Attendance a
-            JOIN Students st ON a.student_id = st.student_id
-            JOIN Person p ON st.person_id = p.person_id
-            JOIN Schedules sc ON a.schedule_id = sc.schedule_id
-            JOIN Subjects s ON sc.subject_id = s.subject_id",
-                process: reader =>
-                {
-                    while (reader.Read())
-                    {
-                        Console.WriteLine($"ID запису: {reader["attendance_id"]}, " +
-                            $"Учень: {reader["fname"]} {reader["name"]} {reader["sname"]}, " +
-                            $"Предмет: {reader["subject_name"]}, " +
-                            $"Дата: {reader["attendance_date"]}, " +
-                            $"Статус: {reader["status"]}");
-                    }
-                });
-            Console.WriteLine("\nНатисніть будь-яку клавішу, щоб продовжити...");
-            Console.ReadKey();
-        }
-
-        private static void AddAttendance()
-        {
-            Console.Write("Введіть ID учня: ");
-            string studentId = Console.ReadLine();
-            Console.Write("Введіть ID розкладу: ");
-            string scheduleId = Console.ReadLine();
-            Console.Write("Введіть дату (РРРР-ММ-ДД): ");
-            string attendanceDate = Console.ReadLine();
-            Console.Write("Введіть статус (Present/Absent/Late/Excused): ");
-            string status = Console.ReadLine();
-
-            DatabaseHelper.ExecuteQuery(
-                "INSERT INTO Attendance (student_id, schedule_id, attendance_date, status) " +
-                "VALUES (@studentId, @scheduleId, @attendanceDate, @status)",
-                cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@studentId", studentId);
-                    cmd.Parameters.AddWithValue("@scheduleId", scheduleId);
-                    cmd.Parameters.AddWithValue("@attendanceDate", attendanceDate);
-                    cmd.Parameters.AddWithValue("@status", status);
-                });
-
-            Console.WriteLine("Запис про відвідуваність успішно додано! Натисніть будь-яку клавішу, щоб продовжити...");
-            Console.ReadKey();
-        }
-
-        private static void EditAttendance()
-        {
-            Console.Write("Введіть ID запису про відвідуваність для редагування: ");
-            string attendanceId = Console.ReadLine();
-
-            Console.WriteLine("Залиште поля порожніми, щоб пропустити оновлення");
-            Console.Write("Новий статус (Present/Absent/Late/Excused): ");
-            string status = Console.ReadLine();
-
-            if (!string.IsNullOrWhiteSpace(status))
-            {
-                DatabaseHelper.ExecuteQuery(
-                    "UPDATE Attendance SET status = @status WHERE attendance_id = @attendanceId",
-                    cmd =>
-                    {
-                        cmd.Parameters.AddWithValue("@status", status);
-                        cmd.Parameters.AddWithValue("@attendanceId", attendanceId);
-                    });
-
-                Console.WriteLine("Запис про відвідуваність успішно оновлено! Натисніть будь-яку клавішу, щоб продовжити...");
-            }
-            else
-            {
-                Console.WriteLine("Оновлення не виконано. Натисніть будь-яку клавішу, щоб продовжити...");
-            }
-
-            Console.ReadKey();
-        }
-
-        private static void DeleteAttendance()
-        {
-            Console.Write("Введіть ID запису про відвідуваність для видалення: ");
-            string attendanceId = Console.ReadLine();
-
-            DatabaseHelper.ExecuteQuery(
-                "DELETE FROM Attendance WHERE attendance_id = @attendanceId",
-                cmd => cmd.Parameters.AddWithValue("@attendanceId", attendanceId));
-
-            Console.WriteLine("Запис про відвідуваність успішно видалено! Натисніть будь-яку клавішу, щоб продовжити...");
+            Console.ResetColor();
             Console.ReadKey();
         }
     }
