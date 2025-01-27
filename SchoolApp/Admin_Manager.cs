@@ -472,8 +472,18 @@ namespace SchoolApp
             string department = Console.ReadLine();
             Console.Write("Новий загальний бюджет: ");
             string totalBudget = Console.ReadLine();
-            Console.Write("Новий ID адміністратора, який затвердив бюджет: ");
+            Console.Write("Введіть ID адміністратора, який затвердив бюджет (необов'язково): ");
             string approvedById = Console.ReadLine();
+
+            Database_Helper.ExecuteQuery(
+                "INSERT INTO Budget (department, total_budget, approved_by_id) " +
+                "VALUES (@department, @totalBudget, NULLIF(@approvedById, ''))",
+                cmd =>
+                {
+                    cmd.Parameters.AddWithValue("@department", department);
+                    cmd.Parameters.AddWithValue("@totalBudget", totalBudget);
+                    cmd.Parameters.AddWithValue("@approvedById", string.IsNullOrWhiteSpace(approvedById) ? DBNull.Value : approvedById);
+                });
 
             var updates = new List<string>();
             if (!string.IsNullOrWhiteSpace(department)) updates.Add("department = @department");

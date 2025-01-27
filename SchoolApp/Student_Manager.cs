@@ -155,24 +155,34 @@ namespace SchoolApp
             Console.Write("Введіть ID класу: ");
             string classId = Console.ReadLine();
 
-            Database_Helper.ExecuteQuery(
-                @"INSERT INTO Person (fname, name, sname, when_born, sex) 
+            try
+            {
+                Database_Helper.ExecuteQuery(
+                    @"INSERT INTO Person (fname, name, sname, when_born, sex) 
               VALUES (@fname, @name, @sname, @birthDate, @sex);
               INSERT INTO Students (person_id, class_id) 
               VALUES (LAST_INSERT_ID(), @classId)",
-                cmd =>
-                {
-                    cmd.Parameters.AddWithValue("@fname", fname);
-                    cmd.Parameters.AddWithValue("@name", name);
-                    cmd.Parameters.AddWithValue("@sname", sname);
-                    cmd.Parameters.AddWithValue("@birthDate", birthDate);
-                    cmd.Parameters.AddWithValue("@sex", sex);
-                    cmd.Parameters.AddWithValue("@classId", classId);
-                });
+                    cmd =>
+                    {
+                        cmd.Parameters.AddWithValue("@fname", fname);
+                        cmd.Parameters.AddWithValue("@name", name);
+                        cmd.Parameters.AddWithValue("@sname", sname);
+                        cmd.Parameters.AddWithValue("@birthDate", birthDate);
+                        cmd.Parameters.AddWithValue("@sex", sex);
+                        cmd.Parameters.AddWithValue("@classId", classId);
+                    });
 
-            Console.ForegroundColor = ConsoleColor.Green;
-            Console.WriteLine("Учень успішно доданий! Натисніть будь-яку клавішу, щоб продовжити...");
-            Console.ResetColor();
+                Console.ForegroundColor = ConsoleColor.Green;
+                Console.WriteLine("Учень успішно доданий! Натисніть будь-яку клавішу, щоб продовжити...");
+                Console.ResetColor();
+            }
+            catch (Exception ex)
+            {
+                Console.ForegroundColor = ConsoleColor.Red;
+                Console.WriteLine($"Помилка при додаванні учня: {ex.Message}");
+                Console.ResetColor();
+            }
+
             Console.ReadKey();
         }
 
