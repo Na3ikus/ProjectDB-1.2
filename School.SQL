@@ -7,11 +7,6 @@ CREATE TABLE Person (
     sex TINYINT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
-CREATE TABLE Class_Flow (
-    class_flow_id BIGINT AUTO_INCREMENT PRIMARY KEY,
-    year INT NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
 CREATE TABLE Classes (
     class_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     class_flow_id BIGINT NOT NULL,
@@ -145,14 +140,6 @@ CREATE TABLE Catering (
     catering_manager_id INT,
     cost DECIMAL(8, 2),
     FOREIGN KEY (catering_manager_id) REFERENCES Administration(admin_id)
-        ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8;
-
-CREATE TABLE Equipment (
-    equipment_id INT AUTO_INCREMENT PRIMARY KEY,
-    name VARCHAR(200) NOT NULL,
-    responsible_staff_id INT,
-    FOREIGN KEY (responsible_staff_id) REFERENCES Administration(admin_id)
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
