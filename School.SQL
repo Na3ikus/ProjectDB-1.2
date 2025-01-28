@@ -1,3 +1,7 @@
+CREATE DATABASE School;
+USE School;
+
+-- Таблиця Person (загальна для студентів, вчителів і адміністрації)
 CREATE TABLE Person (
     person_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     fname VARCHAR(100) NOT NULL,
@@ -7,6 +11,13 @@ CREATE TABLE Person (
     sex TINYINT NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Class_Flow
+CREATE TABLE Class_Flow (
+    class_flow_id BIGINT AUTO_INCREMENT PRIMARY KEY,
+    year INT NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Таблиця Classes
 CREATE TABLE Classes (
     class_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     class_flow_id BIGINT NOT NULL,
@@ -15,12 +26,14 @@ CREATE TABLE Classes (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Subjects
 CREATE TABLE Subjects (
     subject_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Schedules (для студентів)
 CREATE TABLE Schedules (
     schedule_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     class_id BIGINT NOT NULL,
@@ -35,6 +48,7 @@ CREATE TABLE Schedules (
     UNIQUE (class_id, day_of_week, start_time, end_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+-- Таблиця Students
 CREATE TABLE Students (
     student_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     person_id BIGINT NOT NULL,
@@ -45,6 +59,7 @@ CREATE TABLE Students (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Attendance
 CREATE TABLE Attendance (
     attendance_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     student_id BIGINT NOT NULL,
@@ -58,6 +73,7 @@ CREATE TABLE Attendance (
     UNIQUE (student_id, schedule_id, attendance_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Grades
 CREATE TABLE Grades (
     grade_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     student_id BIGINT NOT NULL,
@@ -72,12 +88,14 @@ CREATE TABLE Grades (
     UNIQUE (student_id, subject_id, grade_date)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Departments
 CREATE TABLE Departments (
     department_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     name VARCHAR(100) NOT NULL,
     description TEXT
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Teachers
 CREATE TABLE Teachers (
     teacher_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     person_id BIGINT NOT NULL,
@@ -90,6 +108,7 @@ CREATE TABLE Teachers (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Teacher_Subjects
 CREATE TABLE Teacher_Subjects (
     teacher_subject_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     teacher_id BIGINT NOT NULL,
@@ -100,6 +119,7 @@ CREATE TABLE Teacher_Subjects (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Schedules_Teachers (для вчителів)
 CREATE TABLE Schedules_Teachers (
     schedule_id BIGINT AUTO_INCREMENT PRIMARY KEY,
     teacher_id BIGINT NOT NULL,
@@ -114,6 +134,7 @@ CREATE TABLE Schedules_Teachers (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Administration
 CREATE TABLE Administration (
     admin_id INT AUTO_INCREMENT PRIMARY KEY,
     person_id BIGINT NOT NULL,
@@ -124,6 +145,7 @@ CREATE TABLE Administration (
         ON DELETE RESTRICT ON UPDATE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Library
 CREATE TABLE Library (
     book_id INT AUTO_INCREMENT PRIMARY KEY,
     book_title VARCHAR(255) NOT NULL,
@@ -134,6 +156,7 @@ CREATE TABLE Library (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Catering
 CREATE TABLE Catering (
     catering_id INT AUTO_INCREMENT PRIMARY KEY,
     dish_name VARCHAR(200) NOT NULL,
@@ -143,6 +166,16 @@ CREATE TABLE Catering (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Equipment
+CREATE TABLE Equipment (
+    equipment_id INT AUTO_INCREMENT PRIMARY KEY,
+    name VARCHAR(200) NOT NULL,
+    responsible_staff_id INT,
+    FOREIGN KEY (responsible_staff_id) REFERENCES Administration(admin_id)
+        ON DELETE SET NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- Таблиця Classrooms
 CREATE TABLE Classrooms (
     office_number INT PRIMARY KEY,
     responsible_staff_id INT,
@@ -150,6 +183,7 @@ CREATE TABLE Classrooms (
         ON DELETE SET NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
+-- Таблиця Budget
 CREATE TABLE Budget (
     budget_id INT AUTO_INCREMENT PRIMARY KEY,
     department ENUM('Management', 'Library', 'Catering', 'Facilities', 'Finance') NOT NULL,
